@@ -1,0 +1,17 @@
+---
+
+trackers: 
+  - yahoo:
+      name: 'yahoo'
+      base_url: 'https://finance.yahoo.com/'
+  - google:
+      name: 'google'
+      base_url: 'na'
+
+stocks:
+  - AAPL
+  - MSFT
+  - MRNA
+  - KO
+  - JBLU
+  - NVDA
