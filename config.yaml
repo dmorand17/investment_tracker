@@ -9,9 +9,4 @@ trackers:
       base_url: 'na'
 
 stocks:
-  - AAPL
-  - MSFT
-  - MRNA
-  - KO
-  - JBLU
-  - NVDA
+  - VTSAX
