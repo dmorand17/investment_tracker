@@ -1,0 +1,30 @@
+version: 1
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(message)s'
+  extended:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+handlers:
+  console:
+    class: logging.StreamHandler
+    #level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+  file:
+    class: logging.RotatingFileHandler
+    #level: DEBUG
+    format: extended
+    filename: './logs/tracker.log'
+    maxBytes: 50000
+    backupCount: 10
+    propagate: false
+loggers:
+  dev:
+    level: DEBUG
+    handlers: [console,file]
+  prod:
+    level: DEBUG
+    handlers: [file]
+root:
+  level: DEBUG
+  handlers: [console]
