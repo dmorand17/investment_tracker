@@ -3,24 +3,26 @@ import json
 import requests
 import logging
 
-logger = logging.getLogger(__name__)
-
 class YahooTracker:
-    ticker_cnt = 0
-
+        
     def __init__(self):
-        print('Creating yahoo tracker')
+        self.logger = logging.getLogger(__name__)
+        self.logger.debug('Creating yahoo tracker')
         self.ticker_list = []
+        self.ticker_cnt = 0
     
     def _is_tracked(self, ticker):
         return any(t.symbol == ticker.symbol for t in self.ticker_list)
 
     def add_ticker(self, ticker):
+        self.logger.info(f"Trying to add {ticker}")
         """ Add ticker to tracking if not already in list"""
-        if not _is_tracked(ticker):
-            logger.info(f"Added {ticker.symbol} to tracker")
-            ticker_cnt += 1
+        if not self._is_tracked(ticker):
+            self.logger.info(f"Added {ticker.symbol} to tracker")
+            self.ticker_cnt += 1
             self.ticker_list.append(ticker)
+        else:
+            self.logger.error(f"{ticker.symbol} already added, skipping...")
 
 if __name__ == '__main__':
     URL = 'https://finance.yahoo.com/quote/AMZN/'

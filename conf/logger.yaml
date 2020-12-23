@@ -15,15 +15,16 @@ handlers:
     formatter: extended
     filename: './logs/tracker.log'
     maxBytes: 50000
-    backupCount: 10
+    backupCount: 5
 loggers:
   dev:
     level: DEBUG
     handlers: [console,file]
     propagate: false
   prod:
-    level: DEBUG
+    level: INFO
     handlers: [file]
+    propagate: false
 root:
-  level: NOTSET
-  handlers: [console]
+  level: DEBUG
+  handlers: [console,file]

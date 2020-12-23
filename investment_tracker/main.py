@@ -8,29 +8,14 @@ import requests
 from bs4 import BeautifulSoup
 import pyfiglet
 import logging
+import logging.config
 import yaml
 import json
-from investment_logger import InvestmentLogger
+
+import tracker
+from core import Ticker
 
 #urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# Create logger for testing
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %I:%M:%S')
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-handler.setLevel(logging.DEBUG)
-
-logger.addHandler(handler)
-# 'application' code
-logger.debug('debug message')
-logger.info('info message')
-logger.warning('warn message')
-logger.error('error message')
-logger.critical('critical message')
-
 
 def parse_args():
     parser = argparse.ArgumentParser(description='DESCRIPTION')
@@ -38,7 +23,7 @@ def parse_args():
     parser.add_argument('-i', '--input', help='help description', action='store')
     return parser.parse_args()
 
-def get_yaml_app_cpg(default_path, env_key):
+def load_config(default_path, env_key):
     path = default_path
     cfg_key = os.getenv(env_key,None)
     if cfg_key:
@@ -46,37 +31,26 @@ def get_yaml_app_cpg(default_path, env_key):
     if os.path.exists(path):
         with open(path) as f:
             try:
-                app_cpg = yaml.safe_load(f)
+                app_cfg = yaml.safe_load(f)
             except Exception as e:
                 print(e)
-                sys.exit("Error in app_cpguration")
+                sys.exit("Error in app configuration")
     else:
-        sys.exit(f"app_cpguration [{path}] not found!")
+        sys.exit(f"app configuration [{path}] not found!")
 
-    return app_cpg
+    return app_cfg
 
 def get_logger_config(default_path='conf/logger.yaml', env_key='INVEST_LOG_CFG'):
-    config = get_yaml_app_cpg(default_path,env_key)
+    config = load_config(default_path,env_key)
     return config
 
 def get_app_config(default_path='conf/config.yaml', env_key='INVEST_CFG'):
-    config = get_yaml_app_cpg(default_path,env_key)
+    config = load_config(default_path,env_key)
     return config
-"""
-Execution Script
-"""
-#custom_fig = pyfiglet.Figlet(font='graffiti')
-custom_fig = pyfiglet.Figlet(font='slant')
-if __name__ == '__main__':
-    args = parse_args()
-    
-    print(custom_fig.renderText("Investment Tracker"))
 
-    config = get_app_config()
-    log_cfg = get_logger_config()
-
-    logger.debug(log_cfg)
-    logger = InvestmentLogger.getInstance(log_cfg).getLogger('dev')
+def configure_logging():
+    logging.config.dictConfig(get_logger_config())
+    logger = logging.getLogger(__name__)
 
     log_level = {
         2: logging.DEBUG
@@ -86,10 +60,24 @@ if __name__ == '__main__':
 
     logger.setLevel(log_level[args.verbose])
     if logger.isEnabledFor(logging.DEBUG):
-        logger.info("testing isEnabled")
+        logger.debug("testing isEnabled...")
 
     # Used for debugging yaml app_cpguration
     logger.debug(json.dumps(config,indent=2))
+    return logger
+
+"""
+Execution Script
+"""
+#custom_fig = pyfiglet.Figlet(font='graffiti')
+custom_fig = pyfiglet.Figlet(font='slant')
+if __name__ == '__main__':
+    args = parse_args()
+
+    print(custom_fig.renderText("Investment Tracker"))
+
+    config = get_app_config()
+    logger = configure_logging()
 
     # Print out each top level key
     for cfg, item in config.items():
@@ -109,8 +97,12 @@ if __name__ == '__main__':
     # Print out tracker details
     trackers = config.get("trackers")
     print("type(trackers): {}".format(type(trackers)))
-    for i,tracker in enumerate(trackers,start=1):
-        print("tracker [{0}] -> {1}".format(i,tracker))
+    for i,trkr in enumerate(trackers,start=1):
+        print("tracker [{0}] -> {1}".format(i,trkr))
     
     # Print yahoo tracker details
     logger.debug(trackers.get("yahoo"))
+
+    tracker = tracker.YahooTracker()
+    """ Add stocks from config into tracker"""
+    [tracker.add_ticker(Ticker(stock)) for stock in stocks]
